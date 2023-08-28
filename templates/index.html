@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Posture Detection</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #video-container {
+            position: relative;
+        }
+        #video {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #333;
+        }
+        #result {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 18px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div id="video-container">
+        <video id="video" autoplay playsinline></video>
+        <div id="result">Postura: <span id="posture"></span></div>
+    </div>
+    <script>
+        const video = document.getElementById('video');
+        const postureElement = document.getElementById('posture');
+
+        // A função para acessar a câmera e exibir o vídeo
+        async function startVideo() {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+        }
+
+        // Atualiza o elemento de postura com o resultado do servidor
+        async function updatePosture() {
+            try {
+                const response = await fetch('/get_posture');
+                const data = await response.json();
+                postureElement.textContent = data.posture;
+                requestAnimationFrame(updatePosture);
+            } catch (error) {
+                console.error('Erro ao obter postura:', error);
+            }
+        }
+
+        startVideo();
+        updatePosture();
+    </script>
+</body>
+</html>
